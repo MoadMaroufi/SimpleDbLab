@@ -1,19 +1,19 @@
 # Lab1 SimpleDb Report
 ### Design decisions
-For the first execice we use Hashpmaps to store the Tditems and to get the indeces of teh fiels ad stuff ,so the reireval is simple when we need a fieldtindex name or somehtinh like its easy. We encoutered a problem withe null field names as our hashmaps takes names as keys and give stehir index the null value was problemtic , so we dedicate a sperate array to the null field nems and their index. There is  a problem still because when the use asks for the the index of a null filed which one should we return. I our case we return the first one if it exists. Maybe another attribute should be added to the TdItem class to be able to distiguish between the null names. We passed all teh test in Junit for teh tupe and TupleDesc classes
+For the first execice, I used Hashpmaps to store the TdItems making  the reireval field's index/name  straightforward and more efficient. I encoutered a problem with null field names, names as keys to provide their indices. The null values were problemtic in this case , so we dedicate a separate array for the null field names and their indices. However, there is  a problem still:  when the user asks for the the index of a null filed which one should we return? In our case we return the first one if it exists. Perhaps another attribute should be added to the TdItem class to be able to distiguish between  null names. . We passed all the tests in JUnit for the Tuple and TupleDesc classes.
 
-For the seocond exercice, it was mentionned thereadafe so we used concurrent hashmaps as data strcures to perform the necessary operations, these hahsmaps made teh reireival easier and we didnt need to scan through tsome arrays or smth. We passed all the tests in junit for the Catalog class
+For the seocond exercice, thereadsafety was mentionned so I used concurrent HashMaps as data structures to implement the necessary method for the class. All tests pass for the Catalog class.
 
-For the third execice, we don't impelment an eviction policy in the Bufferpool.getpage method for this lab , so we just check if the current # of pages in the buffer is smaller than the maximum number of pages allowed if not w ethrow a dbExcetion.
+For the third exercise, we don't implement an eviction policy in the BufferPool.getPage method for this lab. Instead, we just check if the current number of pages in the buffer is less than the maximum number of pages allowed. If not, we throw a DbException.
 
-For the fourth execice, the document mentions the endianness of java virtual macines at first i thought i had to use this somnmewhere but eventually i didnt need it becaus eshifting bits to the right doesnt matter if we are using biog or littl endian n the code I have written. This part of using buitwise operation and conversion from bytes to bits and indeces was a bit confusing. The iterator salso was i thinkfor me on the hardest parts in this as i had to figure how everthing works out togteher how i should use the previous fucntions in this iterator , which a custum iterator that skips the empty slots. It was also difficult in the sens that had to read other classes that i havent't imeplented and understand how they work and use their methods in my code. Our code evntually passes all teh tests in Junit HeapfileReadtest and RecordIdTest.
+For the fourth execice, the document discusses the endianness of Java Virtual Machines.  Initially, I thought I had to use this information, but eventually, I didn't need it because shifting bits to the right doesn't depend on whether we are using big or little endian in the code I have written. This part, involving bitwise operations  was a somewhat confusing. The iterator was also one of the toughest parts of the lab, as I had to figure out how everything works together, how to use the previous functions in this custom iterator that skips empty slots. It was also difficult in the sense that I had to read and understand other classes I hadn't implemented (already implemented for us) and use their methods in my code. The JUnit  tests HeapfileReadTest and RecordIdTest were eventually sccefully passed.
 
-for the fifth execice, the delicate part was the iterator as well where we go over each page and use the iterator we define for the heapage beforehand.
+For the fifth execice, the delicate part was also the iterator as well where we go over each page and use the iterator we've defined for the heapage beforehand.
 
 
-for the last execice, in the iterator we just use the methods of the  dbFileIterator,as it didn't make sens to rienplement the same iterator with sma emethods but int he lab the TA Jean flavien explained it to me and pointed me to the right direction.
+For the last exercise, the iterator was a bit confusing. We just had to call the previous methods from DbFileIterator. In the lab, the teaching assistant clarified this for me and pointed me in the right direction, explaining that we should indeed just call the methods from the previous DbFileIterator.
 
-Finally i perofmred the 3.7 A simple query and i got the desired ouput:
+Finally I perofmred the 3.7 A simple query test and i got the desired ouput:
 ```
 Moaad@Moaads-MacBook-Pro Lab1-starter-code % ls
 Report.md		lib			src
@@ -38,4 +38,4 @@ Moaad@Moaads-MacBook-Pro Lab1-starter-code %
 ```
 
 
-I spent apprroximately 30 to 35 hours on the lab, I worked alone which turned out to be very benifitial . I started with a very fast peace once the lab was realesed on the holday week i fnished approaximately 50% of the laba nd then during the flowwing weeks finished the rest on teh weekends and sometimes during the week. 
+I spent apprroximately 30 to 35 hours on the lab, working alone which turned out to be very benifitial. I started  at a fast pace once the lab was realesed during the holday week, fnishing approaximately 50% of it. Then over the flowwing weeks, I finished the rest on the weekends and occasionally during the week.
