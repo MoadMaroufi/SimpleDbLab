@@ -114,12 +114,34 @@ public class AggregateTest extends SimpleDbTestBase {
    * Unit test for Aggregate.getNext() using a count aggregate with string types
    */
   @Test public void countStringAggregate() throws Exception {
-    Aggregate op = new Aggregate(scan2, 1, 0,
-        Aggregator.Op.COUNT);
-    op.open();
-    count.open();
-    TestUtil.matchAllTuples(count, op);
-  }
+	    Aggregate op = new Aggregate(scan2, 1, 0, Aggregator.Op.COUNT);
+	    op.open();
+	    count.open();
+
+	    while (op.hasNext()) {
+	        Tuple actualTuple = op.next();
+	        Tuple expectedTuple = null;
+	        if (count.hasNext()) {
+	            expectedTuple = count.next();
+	        }
+
+	        // Logging the tuples for comparison
+	        if (expectedTuple != null) {
+	            System.out.println("Expected Tuple: " + expectedTuple + " | Actual Tuple: " + actualTuple);
+	            if (!expectedTuple.equals(actualTuple)) {
+	                System.out.println("Mismatch found - Expected Tuple: " + expectedTuple + ", Actual Tuple: " + actualTuple);
+	            }
+	        } else {
+	            System.out.println("No corresponding expected tuple for Actual Tuple: " + actualTuple);
+	        }
+	    }
+
+	    // Rewind and use utility method for final verification
+	    op.rewind();
+	    count.rewind();
+	    TestUtil.matchAllTuples(count, op);
+	}
+
 
   /**
    * Unit test for Aggregate.getNext() using a count aggregate with string types

@@ -242,9 +242,15 @@ public class HeapPage implements Page {
      * @param t The tuple to delete
      */
     public void deleteTuple(Tuple t) throws DbException {
-        // some code goes here
-        // not necessary for lab1
+        RecordId rid = t.getRecordId();
+        if (rid == null || !rid.getPageId().equals(this.pid) || !isSlotUsed(rid.getTupleNumber())) {
+            throw new DbException("Tuple is not on this page or slot already empty");
+        }
+
+        markSlotUsed(rid.getTupleNumber(), false);
+        tuples[rid.getTupleNumber()] = null;
     }
+
 
     /**
      * Adds the specified tuple to the page;  the tuple should be updated to reflect
@@ -254,26 +260,36 @@ public class HeapPage implements Page {
      * @param t The tuple to add.
      */
     public void insertTuple(Tuple t) throws DbException {
-        // some code goes here
-        // not necessary for lab1
+        for (int i = 0; i < numSlots; i++) {
+            if (!isSlotUsed(i)) {
+                markSlotUsed(i, true);
+                t.setRecordId(new RecordId(pid, i));
+                tuples[i] = t;
+                return;
+            }
+        }
+        throw new DbException("All tuple slots on this page are in use");
     }
+
 
     /**
      * Marks this page as dirty/not dirty and record that transaction
      * that did the dirtying
      */
+    private TransactionId dirtying_transaction=null;
     public void markDirty(boolean dirty, TransactionId tid) {
-        // some code goes here
-	// not necessary for lab1
+        if (dirty) {
+            dirtying_transaction = tid;
+        } else {
+            dirtying_transaction = null;
+        }
     }
 
     /**
      * Returns the tid of the transaction that last dirtied this page, or null if the page is not dirty
      */
     public TransactionId isDirty() {
-        // some code goes here
-	// Not necessary for lab1
-        return null;      
+        return dirtying_transaction;
     }
 
     /**
@@ -283,7 +299,7 @@ public class HeapPage implements Page {
         int emptyslots=0;
        for(int i=0;i<this.numSlots;i++){
            byte headerByte= header[i/8];//i/8 represents the index of the byte
-           //We shift the bit we are interested in to the right
+           //Basically we shift the bit bit we are interested in to right
            // and then do bitwise and with 1 which would gives 0 if the bit slot is 0  and 1 otherwise
            int bitValue = (headerByte >> (i%8)) & 1;//i%8 represents the index of the bit
            if (bitValue==0) emptyslots++;
@@ -307,9 +323,14 @@ public class HeapPage implements Page {
      * Abstraction to fill or clear a slot on this page.
      */
     private void markSlotUsed(int i, boolean value) {
-        // some code goes here
-        // not necessary for lab1
+        byte headerByte = header[i / 8];
+        if (value) {
+            header[i / 8] = (byte) (headerByte | (1 << (i % 8)));
+        } else {
+            header[i / 8] = (byte) (headerByte & ~(1 << (i % 8)));
+        }
     }
+
 
     /**
      * @return an iterator over all tuples on this page (calling remove on this iterator throws an UnsupportedOperationException)

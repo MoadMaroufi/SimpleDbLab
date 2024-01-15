@@ -16,7 +16,24 @@ public class AggregateTest extends SimpleDbTestBase {
         SeqScan ss = new SeqScan(tid, table.getId(), "");
         Aggregate ag = new Aggregate(ss, aggregateColumn, groupColumn, operation);
 
-        SystemTestUtil.matchTuples(ag, expectedResult);
+        try {
+            SystemTestUtil.matchTuples(ag, expectedResult);
+        } catch (AssertionError e) {
+            System.out.println("Assertion Error caught: " + e.getMessage());
+            System.out.println("Expected Result: ");
+            for (ArrayList<Integer> result : expectedResult) {
+                System.out.println(result.toString());
+            }
+            System.out.println("Actual Result: ");
+            ag.open();
+            while (ag.hasNext()) {
+                Tuple tuple = ag.next();
+                System.out.println(tuple.toString());
+            }
+            ag.close();
+            throw e; // Rethrow the exception to ensure the test fails
+        }
+
         Database.getBufferPool().transactionComplete(tid);
     }
 

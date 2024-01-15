@@ -9,6 +9,10 @@ import java.io.IOException;
 public class Delete extends Operator {
 
     private static final long serialVersionUID = 1L;
+    private TransactionId t;
+    private OpIterator child;
+    private BufferPool myBufferPool=Database.getBufferPool();
+    private boolean firstCall=true;
 
     /**
      * Constructor specifying the transaction that this delete belongs to as
@@ -20,24 +24,29 @@ public class Delete extends Operator {
      *            The child operator from which to read tuples for deletion
      */
     public Delete(TransactionId t, OpIterator child) {
-        // some code goes here
+        this.t = t;
+        this.child = child;
+        
     }
 
     public TupleDesc getTupleDesc() {
-        // some code goes here
-        return null;
+        return new TupleDesc(new Type[]{Type.INT_TYPE});
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        // some code goes here
+        super.open();
+        child.open();
     }
 
     public void close() {
-        // some code goes here
+        super.close();
+        child.close();
+        firstCall=true;
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
-        // some code goes here
+        child.rewind();
+        firstCall=true;
     }
 
     /**
@@ -50,19 +59,38 @@ public class Delete extends Operator {
      * @see BufferPool#deleteTuple
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-        // some code goes here
-        return null;
+    	if(firstCall) {
+        int count =0;
+        while(child.hasNext()){
+            try {
+                myBufferPool.deleteTuple(this.t,child.next());
+                count++;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+            TupleDesc myTupleDesc= this.getTupleDesc();
+            Tuple tuple = new Tuple(myTupleDesc);
+            tuple.setField(0, new IntField(count));
+            firstCall=false;
+            return tuple;
+    	}
+    	return null;
+        
+        
     }
+
 
     @Override
     public OpIterator[] getChildren() {
-        // some code goes here
-        return null;
+        return new OpIterator[]{this.child};
     }
 
     @Override
     public void setChildren(OpIterator[] children) {
-        // some code goes here
+        if (children.length > 0) {
+            this.child = children[0];
+        }
     }
-
 }

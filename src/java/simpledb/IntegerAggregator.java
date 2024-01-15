@@ -1,4 +1,8 @@
 package simpledb;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * Knows how to compute some aggregate over a set of IntFields.
@@ -6,6 +10,12 @@ package simpledb;
 public class IntegerAggregator implements Aggregator {
 
     private static final long serialVersionUID = 1L;
+    private HashMap<Field, Integer> aggResults;
+    private HashMap<Field, Integer> count;
+    private int gbfield;
+    private Type gbfieldtype;
+    private int afield;
+    private Op what;
 
     /**
      * Aggregate constructor
@@ -23,7 +33,12 @@ public class IntegerAggregator implements Aggregator {
      */
 
     public IntegerAggregator(int gbfield, Type gbfieldtype, int afield, Op what) {
-        // some code goes here
+        this.gbfield=gbfield;
+        this.gbfieldtype=gbfieldtype;
+        this.afield=afield;
+        this.what=what;
+        this.aggResults = new HashMap<>();
+        this.count=new HashMap<>();
     }
 
     /**
@@ -34,7 +49,29 @@ public class IntegerAggregator implements Aggregator {
      *            the Tuple containing an aggregate field and a group-by field
      */
     public void mergeTupleIntoGroup(Tuple tup) {
-        // some code goes here
+        Field groupVal = null;
+        if (gbfield != Aggregator.NO_GROUPING){
+            groupVal=tup.getField(gbfield);
+        }
+        if (what == Op.COUNT) {
+            int currentCount = aggResults.getOrDefault(groupVal, 0);
+            aggResults.put(groupVal, currentCount + 1);
+            return; 
+        }
+        
+        int aggVal = ((IntField) tup.getField(afield)).getValue();
+        int currentVal = aggResults.getOrDefault(groupVal, (what == Op.MIN) ? Integer.MAX_VALUE : (what == Op.MAX) ? Integer.MIN_VALUE : 0);
+        int currentCount = count.getOrDefault(groupVal, 0);
+
+        switch (what) {
+            case SUM -> aggResults.put(groupVal, currentVal + aggVal);
+            case AVG -> {
+                aggResults.put(groupVal, currentVal + aggVal);
+                count.put(groupVal, currentCount + 1);
+            }
+            case MIN -> aggResults.put(groupVal, Math.min(currentVal, aggVal));
+            case MAX -> aggResults.put(groupVal, Math.max(currentVal, aggVal));
+        }
     }
 
     /**
@@ -46,9 +83,60 @@ public class IntegerAggregator implements Aggregator {
      *         the constructor.
      */
     public OpIterator iterator() {
-        // some code goes here
-        throw new
-        UnsupportedOperationException("please implement me for lab2");
+        return new OpIterator() {
+            private Iterator<HashMap.Entry<Field, Integer>> it;
+
+            public void open() {
+                it = aggResults.entrySet().iterator();
+            }
+
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            public Tuple next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("No more tuples");
+                }
+
+                HashMap.Entry<Field, Integer> entry = it.next();
+                Tuple tuple = new Tuple(getTupleDesc());
+                int  aggregateVal =entry.getValue();
+
+                if (what == Op.AVG) {
+                    int countVal = count.get(entry.getKey());
+                    aggregateVal /= countVal; // Calculate average
+                }
+
+
+                if (gbfield == NO_GROUPING) {
+                    tuple.setField(0, new IntField( aggregateVal));
+                } else {
+                    tuple.setField(0, entry.getKey());
+                    tuple.setField(1, new IntField( aggregateVal));
+                }
+                return tuple;
+            }
+
+            public void rewind() {
+                open();
+            }
+
+            public TupleDesc getTupleDesc() {
+                if (gbfield == NO_GROUPING) {
+                    return new TupleDesc(new Type[]{Type.INT_TYPE});
+                } else {
+                    return new TupleDesc(new Type[]{gbfieldtype, Type.INT_TYPE});
+                }
+            }
+
+            public void close() {
+            }
+
+            };
+        };
     }
 
-}
+
+
+
