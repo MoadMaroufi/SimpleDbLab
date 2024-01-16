@@ -144,6 +144,8 @@ public class Aggregate extends Operator {
      * given in the constructor, and child_td is the TupleDesc of the child
      * iterator.
      */
+
+     //returning child.getTupleDesc also passes the test but did this just to be compliant with the responsibilities of the method
     public TupleDesc getTupleDesc() {
         Type aggregateFieldType = child.getTupleDesc().getFieldType(afield);
 
@@ -168,8 +170,8 @@ public class Aggregate extends Operator {
         child.close();
         aggIterator.close();
     }
-    //For me : the following two methods are used to retrieve or set the children  i.e the source of tuples that
-    // we feed the  current operator
+    //Note for self : the following two methods are used to retrieve or set the children  i.e the source of tuples that
+    // we feed into the current operator
     @Override
     public OpIterator[] getChildren() {
         return new OpIterator[] { this.child };

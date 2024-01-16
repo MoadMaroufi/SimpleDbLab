@@ -95,8 +95,9 @@ public class HeapFile implements DbFile {
         RandomAccessFile file = null;
         try {
             file = new RandomAccessFile(this.f, "rw"); 
+            PageId pid = page.getId();
             // Calculate the offset 
-            int offset = BufferPool.getPageSize() * this.numPages();
+            long offset=(long)BufferPool.getPageSize()* pid.getPageNumber();
             // use the offset to place the pointer correctly
             file.seek(offset);
             byte[] pageData = page.getPageData();
@@ -132,7 +133,8 @@ public class HeapFile implements DbFile {
 
             
         }
-        // No empty page
+        // No empty page, we create another page, don't worry the eviction policy will handle deleting other 
+        //pages to always have <=maxpages, as this is not the responsibility of the method.
         HeapPageId pid = new HeapPageId(this.getId(), this.numPages());
         HeapPage extraPage = new HeapPage(pid, HeapPage.createEmptyPageData());
         extraPage.insertTuple(t);
@@ -219,4 +221,7 @@ public class HeapFile implements DbFile {
 
         };
         }
+    
+
+
     }

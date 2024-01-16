@@ -11,8 +11,7 @@ public class Delete extends Operator {
     private static final long serialVersionUID = 1L;
     private TransactionId t;
     private OpIterator child;
-    private BufferPool myBufferPool=Database.getBufferPool();
-    private boolean firstCall=true;
+    boolean firstCall=true;
 
     /**
      * Constructor specifying the transaction that this delete belongs to as
@@ -63,7 +62,7 @@ public class Delete extends Operator {
         int count =0;
         while(child.hasNext()){
             try {
-                myBufferPool.deleteTuple(this.t,child.next());
+            	Database.getBufferPool().deleteTuple(this.t,child.next());
                 count++;
             } catch (IOException e) {
                 throw new RuntimeException(e);

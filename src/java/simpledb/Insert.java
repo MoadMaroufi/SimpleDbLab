@@ -26,7 +26,6 @@ public class Insert extends Operator {
     private TransactionId t;
     private OpIterator child;
     private int tableId;
-    private BufferPool myBufferPool=Database.getBufferPool();
     private boolean firstCall=true;
 
     public Insert(TransactionId t, OpIterator child, int tableId)
@@ -76,7 +75,7 @@ public class Insert extends Operator {
         int count =0;
         while(child.hasNext()){
             try {
-                myBufferPool.insertTuple(this.t,this.tableId,child.next());
+            	Database.getBufferPool().insertTuple(this.t,this.tableId,child.next());
                 count++;
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -95,6 +94,7 @@ public class Insert extends Operator {
     }
 
 
+
     @Override
     public OpIterator[] getChildren() {
         return new OpIterator[]{this.child};
@@ -107,3 +107,8 @@ public class Insert extends Operator {
         }
     }
 }
+
+
+
+
+

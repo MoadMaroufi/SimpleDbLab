@@ -36,13 +36,13 @@ public class Filter extends Operator {
 
     public void open() throws DbException, NoSuchElementException,
             TransactionAbortedException {
-        super.open();//Proper Initialization and Cleanup by the superclass operator
+        super.open();//Proper Initialization and Cleanup by the superclass operator thats why we have to use super
         child.open();
     }
 
     public void close() {
         child.close();
-        super.close();//Proper Initialization and Cleanup by the superclass operator
+        super.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
@@ -74,6 +74,6 @@ public class Filter extends Operator {
     }
     @Override
     public void setChildren(OpIterator[] children) {
-            child = children[0];// filter would have only one child
+            child = children[0];
     }
 }

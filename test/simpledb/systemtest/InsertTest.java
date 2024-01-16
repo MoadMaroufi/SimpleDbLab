@@ -37,10 +37,10 @@ public class InsertTest extends SimpleDbTestBase {
         }
         assertTrue(hasResult);
         insOp.close();
-
         // As part of the same transaction, scan the table
         sourceTuples.addAll(destinationTuples);
         SystemTestUtil.matchTuples(destination, tid, sourceTuples);
+        
 
         // As part of a different transaction, scan the table
         Database.getBufferPool().transactionComplete(tid);

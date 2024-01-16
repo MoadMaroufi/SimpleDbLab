@@ -37,7 +37,10 @@ public class IntegerAggregator implements Aggregator {
         this.gbfieldtype=gbfieldtype;
         this.afield=afield;
         this.what=what;
+        // this one is used eclusively for teh final results that we will be returning.
         this.aggResults = new HashMap<>();
+        //this one on on the other is used to keep count for the avg operator and only ofr that one, it shouldn't serve 
+        //the count operator , as it is alreadys erved by aggResults.
         this.count=new HashMap<>();
     }
 
@@ -60,6 +63,7 @@ public class IntegerAggregator implements Aggregator {
         }
         
         int aggVal = ((IntField) tup.getField(afield)).getValue();
+        //We initilize teh aggreate value when op=Max with -infinity and vice versa for Min and 0 for all others.
         int currentVal = aggResults.getOrDefault(groupVal, (what == Op.MIN) ? Integer.MAX_VALUE : (what == Op.MAX) ? Integer.MIN_VALUE : 0);
         int currentCount = count.getOrDefault(groupVal, 0);
 
@@ -96,7 +100,7 @@ public class IntegerAggregator implements Aggregator {
 
             public Tuple next() {
                 if (!hasNext()) {
-                    throw new NoSuchElementException("No more tuples");
+                    throw new NoSuchElementException("All tuples have been consumed");
                 }
 
                 HashMap.Entry<Field, Integer> entry = it.next();

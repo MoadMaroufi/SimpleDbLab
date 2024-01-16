@@ -111,40 +111,40 @@ public class SystemTestUtil {
             throws DbException, TransactionAbortedException, IOException {
         ArrayList<ArrayList<Integer>> copy = new ArrayList<ArrayList<Integer>>(tuples);
 
-        if (Debug.isEnabled()) {
-            Debug.log("Expected tuples:");
-            for (ArrayList<Integer> t : copy) {
-                Debug.log("\t" + Utility.listToString(t));
-            }
+        // Log expected tuples
+        System.out.println("Expected tuples:");
+        for (ArrayList<Integer> t : copy) {
+            System.out.println("\t" + Utility.listToString(t));
         }
 
         iterator.open();
         while (iterator.hasNext()) {
             Tuple t = iterator.next();
             ArrayList<Integer> list = tupleToList(t);
+
+            // Log each scanned tuple
+            System.out.println("Scanned tuple: " + Utility.listToString(list));
+
             boolean isExpected = copy.remove(list);
-            Debug.log("scanned tuple: %s (%s)", t, isExpected ? "expected" : "not expected");
+            // Log result of comparison
+            System.out.println("Tuple " + (isExpected ? "found" : "not found") + " in expected tuples.");
+
             if (!isExpected) {
-                Assert.fail("expected tuples does not contain: " + t);
+                Assert.fail("Expected tuples does not contain: " + Utility.listToString(list));
             }
         }
         iterator.close();
 
+        // Log any expected tuples that were not found
         if (!copy.isEmpty()) {
-            String msg = "expected to find the following tuples:\n";
-            final int MAX_TUPLES_OUTPUT = 10;
-            int count = 0;
+            System.out.println("Expected to find the following tuples but did not:");
             for (ArrayList<Integer> t : copy) {
-                if (count == MAX_TUPLES_OUTPUT) {
-                    msg += "[" + (copy.size() - MAX_TUPLES_OUTPUT) + " more tuples]";
-                    break;
-                }
-                msg += "\t" + Utility.listToString(t) + "\n";
-                count += 1;
+                System.out.println("\t" + Utility.listToString(t));
             }
-            Assert.fail(msg);
+            Assert.fail("Some expected tuples were not found in the scan.");
         }
     }
+
 
     /**
      * Returns number of bytes of RAM used by JVM after calling System.gc many times.

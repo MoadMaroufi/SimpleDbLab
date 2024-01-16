@@ -268,7 +268,7 @@ public class HeapPage implements Page {
                 return;
             }
         }
-        throw new DbException("All tuple slots on this page are in use");
+        throw new DbException("All tuple slots on this page are used!");
     }
 
 
@@ -299,7 +299,7 @@ public class HeapPage implements Page {
         int emptyslots=0;
        for(int i=0;i<this.numSlots;i++){
            byte headerByte= header[i/8];//i/8 represents the index of the byte
-           //Basically we shift the bit bit we are interested in to right
+           //Basically we shift the bit  we are interested in to right
            // and then do bitwise and with 1 which would gives 0 if the bit slot is 0  and 1 otherwise
            int bitValue = (headerByte >> (i%8)) & 1;//i%8 represents the index of the bit
            if (bitValue==0) emptyslots++;
@@ -325,8 +325,10 @@ public class HeapPage implements Page {
     private void markSlotUsed(int i, boolean value) {
         byte headerByte = header[i / 8];
         if (value) {
+            //create a bitmask with one bit set to 1 corresponding to the slot index and then use a Or operation to turn it to 1 
             header[i / 8] = (byte) (headerByte | (1 << (i % 8)));
         } else {
+            //create a bitmask with all bits set to 1 except the one corresponding to the slot index and then use a And operation
             header[i / 8] = (byte) (headerByte & ~(1 << (i % 8)));
         }
     }

@@ -27,7 +27,7 @@ public class StringAggregator implements Aggregator {
      */
     public StringAggregator(int gbfield, Type gbfieldtype, int afield, Op what) {
         if (what != Op.COUNT) {
-            throw new IllegalArgumentException("Only COUNT is supported for StringAggregator");
+            throw new IllegalArgumentException("We support only COUNT is supported for StringAggregator");
         }
         this.gbfield = gbfield;
         this.gbfieldtype = gbfieldtype;
