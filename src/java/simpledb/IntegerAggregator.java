@@ -10,7 +10,7 @@ import java.util.Optional;
 public class IntegerAggregator implements Aggregator {
 
     private static final long serialVersionUID = 1L;
-    private HashMap<Field, Integer> aggResults;
+    private HashMap<Field, Integer> aggregation;
     private HashMap<Field, Integer> count;
     private int gbfield;
     private Type gbfieldtype;
@@ -37,10 +37,10 @@ public class IntegerAggregator implements Aggregator {
         this.gbfieldtype=gbfieldtype;
         this.afield=afield;
         this.what=what;
-        // this one is used eclusively for teh final results that we will be returning.
-        this.aggResults = new HashMap<>();
+        // this one is used eclusively for the final results that we will be returning.
+        this.aggregation = new HashMap<>();
         //this one on on the other is used to keep count for the avg operator and only ofr that one, it shouldn't serve 
-        //the count operator , as it is alreadys erved by aggResults.
+        //the count operator , as it is alreadys erved by aggregation.
         this.count=new HashMap<>();
     }
 
@@ -57,24 +57,24 @@ public class IntegerAggregator implements Aggregator {
             groupVal=tup.getField(gbfield);
         }
         if (what == Op.COUNT) {
-            int currentCount = aggResults.getOrDefault(groupVal, 0);
-            aggResults.put(groupVal, currentCount + 1);
+            int currentCount = aggregation.getOrDefault(groupVal, 0);
+            aggregation.put(groupVal, currentCount + 1);
             return; 
         }
         
         int aggVal = ((IntField) tup.getField(afield)).getValue();
         //We initilize teh aggreate value when op=Max with -infinity and vice versa for Min and 0 for all others.
-        int currentVal = aggResults.getOrDefault(groupVal, (what == Op.MIN) ? Integer.MAX_VALUE : (what == Op.MAX) ? Integer.MIN_VALUE : 0);
+        int currentVal = aggregation.getOrDefault(groupVal, (what == Op.MIN) ? Integer.MAX_VALUE : (what == Op.MAX) ? Integer.MIN_VALUE : 0);
         int currentCount = count.getOrDefault(groupVal, 0);
 
         switch (what) {
-            case SUM -> aggResults.put(groupVal, currentVal + aggVal);
+            case SUM -> aggregation.put(groupVal, currentVal + aggVal);
             case AVG -> {
-                aggResults.put(groupVal, currentVal + aggVal);
+                aggregation.put(groupVal, currentVal + aggVal);
                 count.put(groupVal, currentCount + 1);
             }
-            case MIN -> aggResults.put(groupVal, Math.min(currentVal, aggVal));
-            case MAX -> aggResults.put(groupVal, Math.max(currentVal, aggVal));
+            case MIN -> aggregation.put(groupVal, Math.min(currentVal, aggVal));
+            case MAX -> aggregation.put(groupVal, Math.max(currentVal, aggVal));
         }
     }
 
@@ -91,7 +91,7 @@ public class IntegerAggregator implements Aggregator {
             private Iterator<HashMap.Entry<Field, Integer>> it;
 
             public void open() {
-                it = aggResults.entrySet().iterator();
+                it = aggregation.entrySet().iterator();
             }
 
             public boolean hasNext() {

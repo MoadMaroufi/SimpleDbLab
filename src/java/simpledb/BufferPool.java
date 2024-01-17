@@ -34,7 +34,7 @@ public class BufferPool {
     private Integer maxPageNum;
 
     private final Map<PageId, LinkedList<Long>> accessHistory;
-    private final int K=5; // the "K" in LRU-K
+    private final int K=5; //  LRU-K
 
     /**
      * Creates a BufferPool that caches up to numPages pages.
