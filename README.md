@@ -1,4 +1,4 @@
-# SimpleDB Project: DBSYS course at EURECOM.
+# SimpleDB Project: DBSYS course at EURECOM
 
 ## Overview
 This project involves the implementation of SimpleDB, a basic database management system, as part of the DBSYS lab assignments. The focus of this implementation is on the core modules required for accessing stored data on disk.
